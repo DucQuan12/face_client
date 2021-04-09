@@ -1,28 +1,32 @@
-from concurrent import futures
 import server_pb2
 import server_pb2_grpc
-from utils.camera_url import CameraUrl
+#from utils.camera_url import CameraUrl
 from utils import utils
 import grpc
-import time
 import base64
-import os
 import cv2
-import sys
-import Config
+import imutils
+#import Config
+import configparser
 from NeatLogger import Log
 
-cfg = Config.ConfigApp()
+cfg = configparser.ConfigParser()
+cfg.read('config.ini')
 log = Log()
 logger = log.get_logger()
 
 
 class Grpc(object):
     def __init__(self):
+        self._size = cfg.getint('PARAMETER', 'size_w')
+        self._stride = cfg.getfloat('PARAMETER', 'stride')
+        self.__camera_url = cfg.get('DEFAULT', 'camera_url')
+        self._batch_size = cfg.getint('PARAMETER', 'batch_size')
         self.__key_server = cfg.get('DEFAULT', 'key_server')
-        self.__utils = utils.Util()
-        self.__host = cfg.get('DEFAULT', 'host')
         self.__port = cfg.get('DEFAULT', 'port')
+        self.__host = cfg.get('DEFAULT', 'host')
+        self.__utils = utils.Util()
+        self.__frames_list = []
 
     def request_client(self, frame):
         if frame is not None:
@@ -31,12 +35,29 @@ class Grpc(object):
 
             yield server_pb2.Request(datas=image64)
 
-    def client(self, func):
+    def client(self):
         private_key = self.__utils.read_key(self.__key_server)
         credentials = grpc.ssl_channel_credentials(root_certificates=private_key)
-        channel = grpc.secure_channel('{}:{}'.format(self.__host, self.__port), credentials)
+        #channel = grpc.secure_channel('{}:{}'.format(self.__host, self.__port), credentials)
+        channel = grpc.insecure_channel("localhost:50070")
         stub = server_pb2_grpc.FaceServiceStub(channel)
-        list_frame = CameraUrl.camera_url()
-        response = map(stub.getStream(self.request_client), list_frame)
-        for res in response:
-            logger.info("response from {}: {}".format(self.__host, res))
+        cap = cv2.VideoCapture(0)
+        while True:
+            try:
+                _, frame = cap.read()
+                #self._frames_list.append(frame)
+                if _ != 1:
+                    continue
+                # if len(self._frames_list) == self._batch_size:
+                #     faces_list = model.detect(self._frames_list)
+                #     # faces_list = Model.modelmtcnn(frames_list=self._frames_list)
+                #     self._frames_list = []
+                #     # print(faces_list)
+                #     # for frame in faces:
+                #     # if faces_list is not None:
+                response = stub.getStream(self.request_client(frame))
+                for res in response:
+                    logger.info("{}".format(res))
+
+            except grpc.RpcError as e:
+                logger.error("No connect")

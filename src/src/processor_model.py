@@ -10,11 +10,11 @@ logger = log.get_logger()
 
 
 class Model(object):
-    def __init__(self, stride=0.2, size=400, model_name = 'hog'):
+    def __init__(self, stride=0.2, size=400, model_name='hog'):
         self.names = ['hog', 'mtcnn']
         self.model_name = model_name
         if model_name in self.names:
-            if model_name == 'mtcnn':
+            if model_name is self.names[1]:
                 self.stride = stride
                 self.size = size
                 self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
