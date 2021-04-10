@@ -25,14 +25,14 @@ class FaceClient(object):
     def __str__(self):
         return self.__class__.__name__
 
-    @staticmethod
-    def run():
+    def __call__(self):
         start = time.time()
-        Grpc().client()
+        app_client = Grpc()
+        app_client()
         logger.info("Total time:{}".format(time.time() - start))
 
 
 if __name__ == "__main__":
     app = FaceClient()
     logging.info('Start App')
-    app.run()
+    app()
