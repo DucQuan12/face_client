@@ -28,36 +28,28 @@ class Grpc(object):
         self.__utils = utils.Util()
         self.__frames_list = []
 
-    def request_client(self, frame):
-        if frame is not None:
-            ret, image = cv2.imencode('.jpg', frame)
-            image64 = base64.b64encode(image)
-
-            yield server_pb2.Request(datas=image64)
-
-    def __call__(self, *args, **kwargs):
-        # private_key = self.__utils.read_key(self.__key_server)
-        # credentials = grpc.ssl_channel_credentials(root_certificates=private_key)
+    def _run(self):
+        private_key = self.__utils.read_key(self.__key_server)
+        credentials = grpc.ssl_channel_credentials(root_certificates=private_key)
         # channel = grpc.secure_channel('{}:{}'.format(self.__host, self.__port), credentials)
         channel = grpc.insecure_channel("localhost:50070")
         stub = server_pb2_grpc.FaceServiceStub(channel)
         cap = cv2.VideoCapture(0)
         while True:
-            # try
-            _, frame = cap.read()
-            # self._frames_list.append(frame)
-            if _ != 1:
-                continue
-            # if len(self._frames_list) == self._batch_size:
-            #     faces_list = model.detect(self._frames_list)
-            #     # faces_list = Model.modelmtcnn(frames_list=self._frames_list)
-            #     self._frames_list = []
-            #     # print(faces_list)
-            #     # for frame in faces:
-            #     # if faces_list is not None:
-            response = stub.getStream(self.request_client(frame))
-            for res in response:
-                logger.info("{}".format(res))
-
-            # except grpc.RpcError as e:
-            #     logger.error("No connect")
+            try:
+                _, frame = cap.read()
+                # self._frames_list.append(frame)
+                if _ != 1:
+                    continue
+                # if len(self._frames_list) == self._batch_size:
+                #     faces_list = model.detect(self._frames_list)
+                #     # faces_list = Model.modelmtcnn(frames_list=self._frames_list)
+                #     self._frames_list = []
+                #     # print(faces_list)
+                #     # for frame in faces:
+                #     # if faces_list is not None:
+                response = stub.getStream(self.__utils.request_client(frame)))
+                for res in response:
+                    logger.info("{}".format(res))
+            except grpc.RpcError as e:
+                logger.error(e.details())

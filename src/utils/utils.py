@@ -15,6 +15,13 @@ class Util(object):
         draw = ImageDraw.Draw(image)
         draw.line()
         return image
+    
+    def request_client(self, frame):
+        if frame is not None:
+            ret, image = cv2.imencode('.jpg', frame)
+            image64 = base64.b64encode(image)
+
+            yield server_pb2.Request(datas=image64)
 
     def __str__(self):
         return self.__class__.__name__
