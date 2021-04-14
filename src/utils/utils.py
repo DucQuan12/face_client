@@ -1,4 +1,7 @@
 from PIL import ImageDraw, Image
+import server_pb2
+import server_pb2_grpc
+import base64
 import cv2
 import os
 

@@ -48,8 +48,10 @@ class Grpc(object):
                 #     # print(faces_list)
                 #     # for frame in faces:
                 #     # if faces_list is not None:
-                response = stub.getStream(self.__utils.request_client(frame)))
+                response = stub.getStream(self.__utils.request_client(frame))
+                
                 for res in response:
                     logger.info("{}".format(res))
+                    
             except grpc.RpcError as e:
                 logger.error(e.details())
