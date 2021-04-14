@@ -18,8 +18,9 @@ class Util(object):
         draw = ImageDraw.Draw(image)
         draw.line()
         return image
-    
-    def request_client(self, frame):
+        
+    @staticmethod
+    def request_client(frame):
         if frame is not None:
             ret, image = cv2.imencode('.jpg', frame)
             image64 = base64.b64encode(image)
