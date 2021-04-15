@@ -54,4 +54,4 @@ class Grpc(object):
                     logger.info("{}".format(res))
                     
             except grpc.RpcError as e:
-                logger.error(e.details())
+                print(e.details())

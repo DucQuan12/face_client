@@ -27,9 +27,7 @@ class FaceClient(object):
 
     def run(self):
         start = time.time()
-        print(2)
         app_client = Grpc()
-        print(1)
         app_client._run()
         logger.info("Total time:{}".format(time.time() - start))
 
